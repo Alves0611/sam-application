@@ -13,6 +13,9 @@ Resources:
       Runtime: dotnet8
       Handler: StockApi
       Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonDynamoDBFullAccess
       Events:
         ApiEvent:
           Type: Api
