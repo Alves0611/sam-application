@@ -17,10 +17,17 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AmazonDynamoDBFullAccess
       Events:
-        ApiEvent:
+        StocksRoot:
           Type: Api
           Properties:
-            Path: /
-            Method: get
+            Path: /stocks
+            Method: ANY
+            RestApiId:
+              Ref: ApiGatewayApi
+        StocksAnythingElse:
+          Type: Api
+          Properties:
+            Path: /stocks/{proxy+}
+            Method: ANY
             RestApiId:
               Ref: ApiGatewayApi
