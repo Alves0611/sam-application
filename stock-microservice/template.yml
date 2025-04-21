@@ -1,11 +1,24 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
+Parameters:
+  TagEnvironment:
+    Type: String
+    Default: production
+    Description: The environment tag to be used for the resources.
+  TagProject:
+    Type: String
+    Default: studying-serverless
+    Description: The project tag to be used for the resources.
+
 Resources:
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: production
+      Tags:
+        Environment: !Ref TagEnvironment
+        Project: !Ref TagProject
 
   ApiFunction:
     Type: AWS::Serverless::Function
@@ -22,12 +35,13 @@ Resources:
           Properties:
             Path: /stocks
             Method: ANY
-            RestApiId:
-              Ref: ApiGatewayApi
+            RestApiId: !Ref ApiGatewayApi
         StocksAnythingElse:
           Type: Api
           Properties:
-            Path: /stocks/{proxy+}
+            Path: /{proxy+}
             Method: ANY
-            RestApiId:
-              Ref: ApiGatewayApi
+            RestApiId: !Ref ApiGatewayApi
+      Tags:
+        Project: !Ref TagProject
+        Environment: !Ref TagEnvironment
