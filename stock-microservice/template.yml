@@ -44,6 +44,9 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          DYNAMO_TABLE_NAME: !Ref DynamoTable
       Events:
         StocksRoot:
           Type: Api
