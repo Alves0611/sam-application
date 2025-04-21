@@ -38,6 +38,7 @@ Resources:
   ApiFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub stocks-lambda-function-${TagEnvironment}
       Runtime: dotnet8
       Handler: StockApi
       Timeout: 30
