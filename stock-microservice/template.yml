@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  TagEnvironment:
+    Type: String
+    Default: production
+    Description: The environment tag to be used for the resources.
+  TagProject:
+    Type: String
+    Default: studying-serverless
+    Description: The project tag to be used for the resources.
+
+Resources:
+  DynamoTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Sub stocks-${TagEnvironment}
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      PrimaryKey:
+        Name: Id
+        Type: String
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        Project: !Ref TagProject
+        Environment: !Ref TagEnvironment
+
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub stocks-api-${TagEnvironment}
+      StageName: production
+      Auth:
+        DefaultAuthorizer: LambdaAuthorizer
+        Authorizers:
+          LambdaAuthorizer:
+            FunctionArn: !Ref LambdaAuthorizerArn
+            Identity:
+              Header: Authorization
+            Type: REQUEST
+      Tags:
+        Environment: !Ref TagEnvironment
+        Project: !Ref TagProject
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub stocks-lambda-function-${TagEnvironment}
+      Runtime: dotnet8
+      Handler: StockApi
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          DYNAMO_TABLE_NAME: !Ref DynamoTable
+      Events:
+        StocksRoot:
+          Type: Api
+          Properties:
+            Path: /stocks
+            Method: ANY
+            RestApiId: !Ref ApiGatewayApi
+        StocksAnythingElse:
+          Type: Api
+          Properties:
+            Path: /stocks/{proxy+}
+            Method: ANY
+            RestApiId: !Ref ApiGatewayApi
+      Tags:
+        Project: !Ref TagProject
+        Environment: !Ref TagEnvironment
