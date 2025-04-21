@@ -54,7 +54,7 @@ Resources:
         StocksAnythingElse:
           Type: Api
           Properties:
-            Path: /{proxy+}
+            Path: /stocks/{proxy+}
             Method: ANY
             RestApiId: !Ref ApiGatewayApi
       Tags:
