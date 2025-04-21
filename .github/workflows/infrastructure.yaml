@@ -43,7 +43,7 @@ jobs:
       - name: Delete feature branch stack
         run: |
           sam delete \
-            --stack-name infrastructure-stack-$(echo ${GITHUB_REF} | tr '/' '-') \
+            --stack-name product-stack-$(echo ${FEATURE_BRANCH##*/} | tr '/' '-') \
             --region ${{ vars.DEVELOPMENT_REGION }} \
             --no-prompts
 
@@ -110,7 +110,7 @@ jobs:
 
       - name: Deploy to development account
         run: |
-          sam deploy --stack-name ${{ vars.DEVELOPMENT_STACK_NAME }} \
+          sam deploy --stack-name product-stack-development \
             --template packaged-development.yaml \
             --capabilities CAPABILITY_IAM \
             --region ${{ vars.DEVELOPMENT_REGION }} \
@@ -152,7 +152,7 @@ jobs:
 
       - name: Deploy to production account
         run: |
-          sam deploy --stack-name ${{ vars.PRODUCTION_STACK_NAME }} \
+          sam deploy --stack-name product-stack-production \
             --template packaged-prod.yaml \
             --capabilities CAPABILITY_IAM \
             --region ${{ vars.PRODUCTION_REGION }} \
