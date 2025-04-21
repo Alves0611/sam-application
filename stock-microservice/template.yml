@@ -30,7 +30,16 @@ Resources:
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Sub stocks-api-${TagEnvironment}
       StageName: production
+      Auth:
+        DefaultAuthorizer: LambdaAuthorizer
+        Authorizers:
+          LambdaAuthorizer:
+            FunctionArn: !Ref LambdaAuthorizerArn
+            Identity:
+              Header: Authorization
+            Type: REQUEST
       Tags:
         Environment: !Ref TagEnvironment
         Project: !Ref TagProject
