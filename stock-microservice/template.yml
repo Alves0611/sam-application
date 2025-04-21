@@ -12,6 +12,21 @@ Parameters:
     Description: The project tag to be used for the resources.
 
 Resources:
+  DynamoTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Sub stocks-${TagEnvironment}
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      PrimaryKey:
+        Name: Id
+        Type: String
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        Project: !Ref TagProject
+        Environment: !Ref TagEnvironment
+
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
