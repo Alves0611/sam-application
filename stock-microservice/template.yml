@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+  LambdaAuthorizerArn:
+    Type: String
+    Description: ARN for the lambda authorizer
   TagEnvironment:
     Type: String
     Default: production
@@ -40,6 +43,7 @@ Resources:
             Identity:
               Header: Authorization
             Type: REQUEST
+            AuthorizerResultTtlInSeconds: 300
       Tags:
         Environment: !Ref TagEnvironment
         Project: !Ref TagProject
