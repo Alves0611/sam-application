@@ -79,59 +79,6 @@ jobs:
             --parameter-overrides \
               TagEnvironment=$(echo ${GITHUB_REF} | tr '/' '-')
 
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: aws-actions/setup-sam@v2
-        with:
-          use-installer: true
-
-      - name: Build resources
-        run: sam build --template ${SAM_TEMPLATE} --use-container
-
-      - name: Assume the development pipeline user role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ vars.DEVELOPMENT_REGION }}
-          role-to-assume: ${{ vars.DEVELOPMENT_PIPELINE_EXECUTION_ROLE }}
-          role-session-name: development-packaging
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
-
-      - name: Upload artifacts to development artifact buckets
-        run: |
-          sam package \
-            --s3-bucket ${{ vars.DEVELOPMENT_ARTIFACTS_BUCKET }} \
-            --region ${{ vars.DEVELOPMENT_REGION }} \
-            --output-template-file packaged-development.yaml
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: packaged-development.yaml
-          path: packaged-development.yaml
-
-      - name: Assume the prod pipeline user role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ vars.PRODUCTION_REGION }}
-          role-to-assume: ${{ vars.PRODUCTION_PIPELINE_EXECUTION_ROLE }}
-          role-session-name: prod-packaging
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
-
-      - name: Upload artifacts to production artifact buckets
-        run: |
-          sam package \
-            --s3-bucket ${{ vars.PRODUCTION_ARTIFACTS_BUCKET }} \
-            --region ${{ vars.PRODUCTION_REGION }} \
-            --output-template-file packaged-prod.yaml
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: packaged-prod.yaml
-          path: packaged-prod.yaml
-
   build-and-deploy-development:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
