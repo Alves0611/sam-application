@@ -11,4 +11,21 @@ Parameters:
     Default: studying-serverless
     Description: The project tag to be used for the resources.
 
-
+Resources:
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub authorizer-lambda-function-${TagEnvironment}
+      Runtime: python3.12
+      Handler: authorizer.lambda_handler
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+          COGNITO_REGION: !Ref AWS::Region
+          COGNITO_ISSUER: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${CognitoUserPool}
+      Tags:
+        Project: !Ref TagProject
+        Environment: !Ref TagEnvironment
